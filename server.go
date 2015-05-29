@@ -6,30 +6,24 @@ import (
 	"net/http"
 )
 
-type Request struct {
-	Method  string
-	FullURL string
-	Header  http.Header
-	Body    []byte
-}
-
 func main() {
-	mux := newMux()
-	log.Fatal(http.ListenAndServe(":5000", mux))
+	log.Fatal(http.ListenAndServe(":5000", http.HandlerFunc(handleAll)))
 }
 
 func handleAll(w http.ResponseWriter, req *http.Request) {
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		return
+		panic(err.Error())
 	}
 
 	requestObj := &Request{
 		Method:  req.Method,
 		FullURL: req.URL.String(),
-		Header:  req.Header,
-		Body:    body,
+		Header:  Header(req.Header),
+		Body:    string(body),
 	}
+
+	requestObj.Print()
 
 	return
 }
